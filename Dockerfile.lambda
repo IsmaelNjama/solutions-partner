@@ -1,0 +1,15 @@
+FROM public.ecr.aws/lambda/python:3.12
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Copy project files
+COPY pyproject.toml uv.lock ${LAMBDA_TASK_ROOT}/
+
+# Install dependencies directly into LAMBDA_TASK_ROOT
+RUN uv pip install --system --no-cache -r pyproject.toml --target ${LAMBDA_TASK_ROOT}
+
+# Copy function code
+COPY app/ ${LAMBDA_TASK_ROOT}/app/
+COPY lambda_handler.py ${LAMBDA_TASK_ROOT}/
+
+CMD [ "lambda_handler.handler" ]
