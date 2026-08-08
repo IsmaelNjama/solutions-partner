@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "boto3>=1.43.67",
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.141.1",
     "langchain-core[standard]>=1.5.3",
