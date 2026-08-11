@@ -10,6 +10,7 @@ dependencies = [
     "fastapi[standard]>=0.141.1",
     "langchain-core[standard]>=1.5.3",
     "langchain-openai[standard]>=1.4.1",
+    "langchain-tavily>=0.2.18",
     "langchain[standard]>=1.3.14",
     "langgraph[standard]>=1.2.10",
     "mangum>=0.21.0",
