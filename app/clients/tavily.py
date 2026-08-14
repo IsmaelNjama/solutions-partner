@@ -1,6 +1,12 @@
 import os
 
 from langchain_tavily import TavilySearch
+from app.utils.get_secrets_utils import get_secrets
+from dotenv import load_dotenv
+
+load_dotenv()
+
+TAVILY_API_KEY = get_secrets()["TAVILY_API_KEY"]
 
 
 _tavily_client = None

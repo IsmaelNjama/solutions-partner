@@ -16,4 +16,5 @@ def get_secrets() -> dict:
     load_dotenv()
     return {
         "NEBIUS_API_KEY": os.getenv("NEBIUS_API_KEY"),
+        "TAVILY_API_KEY": os.getenv("TAVILY_API_KEY"),
     }
