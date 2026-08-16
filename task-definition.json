@@ -9,7 +9,7 @@
   "containerDefinitions": [
       {
           "name": "search-companion-container",
-          "image": "654081961741.dkr.ecr.us-east-1.amazonaws.com/search-companion:ff5da09cbc2bcfc80dd1ef1003704aad54a237b8",
+          "image": "654081961741.dkr.ecr.us-east-1.amazonaws.com/search-companion:81b30ae833a8975f1012528e5e8317a2886d2701",
           "memory": 512,
           "cpu": 256,
           "essential": true,
