@@ -45,23 +45,9 @@ jobs:
       - name: Syntax check
         run: uv run python -m compileall app
 
-      - name: Check whether tests are enabled
-        id: tests
-        shell: bash
-        run: |
-          if [[ "${{ env.RUN_TESTS }}" == "true" ]] || find . -type f \( -name "test_*.py" -o -name "*_test.py" \) | grep -q .; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Run tests
-        if: steps.tests.outputs.enabled == 'true'
+        if: ${{ env.RUN_TESTS == 'true' }}
         run: uv run pytest
-
-      - name: Skip tests for now
-        if: steps.tests.outputs.enabled != 'true'
-        run: echo "No test suite detected; skipping pytest until tests are added. Set RUN_TESTS=true to force execution when ready."
 
   aws:
     needs: validate
@@ -92,3 +78,19 @@ jobs:
           docker build -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: paza-backend-container
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ secrets.ECS_SERVICE }}
+          cluster: ${{ secrets.ECS_CLUSTER }}
+          wait-for-service-stability: true
