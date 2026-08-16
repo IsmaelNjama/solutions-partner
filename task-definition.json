@@ -1,0 +1,58 @@
+{
+  "family": "search-companion-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::654081961741:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::654081961741:role/ecsTaskRole",
+  "containerDefinitions": [
+      {
+          "name": "search-companion-container",
+          "image": "654081961741.dkr.ecr.us-east-1.amazonaws.com/search-companion:ff5da09cbc2bcfc80dd1ef1003704aad54a237b8",
+          "memory": 512,
+          "cpu": 256,
+          "essential": true,
+          "portMappings": [
+              {
+                  "containerPort": 8000,
+                  "protocol": "tcp"
+              }
+          ],
+          "secrets": [
+              {
+                  "name": "NEBIUS_API_KEY",
+                  "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs"
+              },
+              {
+                  "name": "TAVILY_API_KEY",
+                  "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs"
+              }
+
+
+          ],
+          "logConfiguration": {
+              "logDriver": "awslogs",
+              "options": {
+                  "awslogs-group": "/ecs/search-companion",
+                  "awslogs-region": "us-east-1",
+                  "awslogs-stream-prefix": "ecs",
+                  "awslogs-create-group": "true"
+              }
+          },
+          "environment": [
+              {
+                  "name": "ENV",
+                  "value": "production"
+              }
+          ],
+          "healthCheck": {
+              "command": ["CMD-SHELL", "wget -q -O - http://localhost:8000/ || exit 1"],
+              "interval": 10,
+              "timeout": 20,
+              "retries": 3,
+              "startPeriod": 300
+          }
+      }
+  ]
+}
