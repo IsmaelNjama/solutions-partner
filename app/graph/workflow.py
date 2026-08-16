@@ -1,11 +1,9 @@
 from typing import Annotated
 
-from typing_extensions import TypedDict
-
-from langgraph.graph import StateGraph, END
-from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import InMemorySaver
-
+from langgraph.graph import END, StateGraph
+from langgraph.graph.message import add_messages
+from typing_extensions import TypedDict
 
 from app.agent.agent import build_agent
 

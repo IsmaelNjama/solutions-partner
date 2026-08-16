@@ -6,7 +6,6 @@ from fastapi.responses import StreamingResponse
 from app.api.schemas import AgentRequest, AgentResponse
 from app.api.services import run_agent_once, stream_agent_tokens
 
-
 router = APIRouter(prefix="/agent", tags=["agent"])
 
 

@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import router
 
-
 app = FastAPI(
     title="Solutions Partner Agent API",
     description="FastAPI endpoint for querying the LangGraph agent.",

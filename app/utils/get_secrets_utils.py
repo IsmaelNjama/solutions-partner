@@ -1,7 +1,8 @@
-import boto3
 import json
 import os
 from functools import lru_cache
+
+import boto3
 from dotenv import load_dotenv
 
 
