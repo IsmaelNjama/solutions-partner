@@ -42,7 +42,7 @@
           },
           "environment": [
               {
-                  "name": "ENVIRON",
+                  "name": "ENVIRONMENT",
                   "value": "production"
               }
           ],
