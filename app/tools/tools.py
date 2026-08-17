@@ -6,7 +6,7 @@ from app.services.search_service import perform_web_search
 
 
 @tool
-def web_search(query: str) -> str:
+async def web_search(query: str) -> str:
     """
     Search the web for real-time information using Tavily.
 
@@ -14,7 +14,7 @@ def web_search(query: str) -> str:
     live facts, documentation, news, prices, releases, or anything
     that may require up-to-date external information.
     """
-    return perform_web_search(query)
+    return await perform_web_search(query)
 
 
 tools = [web_search]
