@@ -21,10 +21,7 @@ def format_search_results(results: dict) -> str:
         url = result.get("url", "")
         content = result.get("content", "").strip()
 
-        output.append(
-            f"[{title}]({url})\n"
-            f"{content}"
-        )
+        output.append(f"[{title}]({url})\n{content}")
 
     if not output:
         return "No search results were found for that query."

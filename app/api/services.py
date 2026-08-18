@@ -24,11 +24,7 @@ def _prepare_agent_inputs(request: AgentRequest):
         user_id=request.user_id,
     )
 
-    inputs = {
-        "messages": [
-            HumanMessage(content=request.query)
-        ]
-    }
+    inputs = {"messages": [HumanMessage(content=request.query)]}
 
     return thread_id, config, context, inputs
 

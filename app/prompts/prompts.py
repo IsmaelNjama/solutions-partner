@@ -1,4 +1,3 @@
-
 system_prompt = """
 You are Research AI assistant, a helpful research assistant.
 

@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 from langchain_tavily import TavilySearch
 
-
 load_dotenv()
 
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")

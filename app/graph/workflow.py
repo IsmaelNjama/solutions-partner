@@ -22,6 +22,4 @@ workflow.set_entry_point("agent")
 workflow.add_edge("agent", END)
 
 
-workflow_app = workflow.compile(
-    checkpointer=InMemorySaver()
-)
+workflow_app = workflow.compile(checkpointer=InMemorySaver())
