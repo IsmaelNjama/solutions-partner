@@ -22,7 +22,7 @@
           "secrets": [
               {
                   "name": "NEBIUS_API_KEY",
-                  "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs"
+                  "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs:NEBIUS_API_KEY::"
               },
               {
                   "name": "TAVILY_API_KEY",
