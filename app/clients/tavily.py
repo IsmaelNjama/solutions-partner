@@ -2,11 +2,9 @@ import os
 from dotenv import load_dotenv
 from langchain_tavily import TavilySearch
 
-from app.utils.get_secrets_utils import get_secrets
 
 load_dotenv()
 
-# TAVILY_API_KEY = get_secrets()["TAVILY_API_KEY"]
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 

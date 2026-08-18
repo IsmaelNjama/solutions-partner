@@ -3,11 +3,9 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 
 from app.tools.tools import tools
-from app.utils.get_secrets_utils import get_secrets
 
 load_dotenv()
 
-# NEBIUS_API_KEY = get_secrets()["NEBIUS_API_KEY"]
 NEBIUS_API_KEY = os.getenv("NEBIUS_API_KEY")
 
 
