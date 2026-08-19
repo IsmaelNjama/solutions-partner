@@ -7,13 +7,13 @@ from app.tools.tools import tools
 
 load_dotenv()
 
-NEBIUS_API_KEY = os.getenv("NEBIUS_API_KEY")
+nebius_api_key = os.environ.get("NEBIUS_API_KEY")
 
 
 llm = ChatOpenAI(
-    model="Qwen/Qwen3-235B-A22B-Instruct-2507",
-    base_url="https://api.tokenfactory.us-central1.nebius.com/v1/",
-    api_key=NEBIUS_API_KEY,
+    model="Qwen/Qwen3-30B-A3B-Instruct-2507",
+    base_url="https://api.tokenfactory.nebius.com/v1/",
+    api_key=nebius_api_key,
     stream_usage=True,
     streaming=True,  # Explicitly enforce streaming
 )

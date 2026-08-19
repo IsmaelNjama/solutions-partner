@@ -21,7 +21,6 @@ def get_tavily_client() -> TavilySearch:
         if not TAVILY_API_KEY:
             raise RuntimeError(
                 "TAVILY_API_KEY is not set. "
-                "Please add it to your environment variables or .env file."
             )
 
         _tavily_client = TavilySearch(
