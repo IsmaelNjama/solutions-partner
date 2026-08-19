@@ -1,0 +1,61 @@
+{
+  "family": "search-companion-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::654081961741:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::654081961741:role/ecsTaskRole",
+  "containerDefinitions": [
+      {
+          "name": "search-companion-container",
+          "image": "654081961741.dkr.ecr.us-east-1.amazonaws.com/search-companion:81b30ae833a8975f1012528e5e8317a2886d2701",
+          "memory": 512,
+          "cpu": 256,
+          "essential": true,
+          "portMappings": [
+              {
+                  "containerPort": 8000,
+                  "protocol": "tcp"
+              }
+          ],
+          "secrets": [
+              {
+                  "name": "NEBIUS_API_KEY",
+                  "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs:NEBIUS_API_KEY::"
+              },
+              {
+                  "name": "TAVILY_API_KEY",
+                  "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs:TAVILY_API_KEY::"
+              }
+
+
+          ],
+          "logConfiguration": {
+              "logDriver": "awslogs",
+              "options": {
+                  "awslogs-group": "/ecs/search-companion",
+                  "awslogs-region": "us-east-1",
+                  "awslogs-stream-prefix": "ecs",
+                  "awslogs-create-group": "true"
+              }
+          },
+          "environment": [
+              {
+                  "name": "ENVIRONMENT",
+                  "value": "dev"
+              }
+          ],
+          "healthCheck": {
+            "command": [
+                "CMD-SHELL",
+                "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)\" || exit 1"
+            ],
+            "interval": 10,
+            "timeout": 5,
+            "retries": 3,
+            "startPeriod": 300
+          }
+      }
+  ]
+}

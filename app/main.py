@@ -1,10 +1,9 @@
 # app/main.py
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import router
-
 
 app = FastAPI(
     title="Solutions Partner Agent API",
@@ -24,8 +23,6 @@ app.add_middleware(
 app.include_router(router)
 
 
-@app.get("/")
+@app.get("/health")
 async def health():
-    return {
-        "status": "ok",
-    }
+    return Response(content="OK", status_code=200, media_type="text/plain")

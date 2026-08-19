@@ -1,122 +1,185 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'SOLUTIONS PARTNER Lambda Function (FastAPI + Mangum + Docker) with API Gateway'
+Description: 'Solutions Partner ECS Fargate + ALB'
 
 Parameters:
   FunctionName:
     Type: String
-    Default: solutions-partner-ai-assistant
+    Default: search-companion
 
   ImageUri:
     Type: String
-    Description: ECR image URI for the Lambda function
+    Description: ECR image URI for the ECS task
 
   SecretArn:
     Type: String
-    Description: ARN of the Secrets Manager secret containing the API key.
+    Description: ARN of the Secrets Manager secret containing API keys
 
 Resources:
 
   # -------------------------------------------------------
-  # IAM Role
+  # IAM
   # -------------------------------------------------------
-  LambdaExecutionRole:
+  ECSTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${FunctionName}-execution-role"
+      RoleName: !Sub "${FunctionName}-ecs-execution-role"
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
-              Service: lambda.amazonaws.com
+              Service: ecs-tasks.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       Policies:
-        - PolicyName: SecretsManagerAccess                                        
+        - PolicyName: SecretsManagerAccess
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
-                Action:
-                  - secretsmanager:GetSecretValue
+                Action: secretsmanager:GetSecretValue
+                Resource: !Ref SecretArn
+
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${FunctionName}-ecs-task-role"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SecretsManagerAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
                 Resource: !Ref SecretArn
 
   # -------------------------------------------------------
-  # Lambda Function
+  # ECS Cluster
   # -------------------------------------------------------
-  LambdaFunction:
-    Type: AWS::Lambda::Function
+  ECSCluster:
+    Type: AWS::ECS::Cluster
     Properties:
-      FunctionName: !Ref FunctionName
-      PackageType: Image
-      Code:
-        ImageUri: !Ref ImageUri
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Timeout: 30
-      MemorySize: 512
-      Environment:
-        Variables:
-          SECRET_ARN: !Ref SecretArn
-          APP_AWS_REGION: !Ref AWS::Region
-          MANGUM_LIFESPAN: "off"
+      ClusterName: !Sub "${FunctionName}-cluster"
 
   # -------------------------------------------------------
-  # API Gateway, Integration, Route, Stage, Permission
+  # CloudWatch Log Group
   # -------------------------------------------------------
-  ApiGateway:
-    Type: AWS::ApiGatewayV2::Api
+  LogGroup:
+    Type: AWS::Logs::LogGroup
     Properties:
-      Name: !Sub "${FunctionName}-api"
-      ProtocolType: HTTP
-      CorsConfiguration:
-        AllowOrigins:
-          - "*"
-        AllowMethods:
-          - "*"
-        AllowHeaders:
-          - "*"
+      LogGroupName: !Sub "/ecs/${FunctionName}"
+      RetentionInDays: 30
 
-  LambdaIntegration:
-    Type: AWS::ApiGatewayV2::Integration
+  # -------------------------------------------------------
+  # Task Definition
+  # -------------------------------------------------------
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
     Properties:
-      ApiId: !Ref ApiGateway
-      IntegrationType: AWS_PROXY
-      IntegrationUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations"
-      PayloadFormatVersion: "2.0"
+      Family: !Sub "${FunctionName}-task"
+      Cpu: '512'
+      Memory: '1024'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ECSTaskRole.Arn
+      ContainerDefinitions:
+        - Name: !Sub "${FunctionName}-container"
+          Image: !Ref ImageUri
+          PortMappings:
+            - ContainerPort: 8000
+          Environment:
+            - Name: APP_AWS_REGION
+              Value: !Ref AWS::Region
+          Secrets:
+            - Name: SECRET_ARN
+              ValueFrom: !Ref SecretArn
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
 
-  DefaultRoute:
-    Type: AWS::ApiGatewayV2::Route
+  # -------------------------------------------------------
+  # ALB
+  # -------------------------------------------------------
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      ApiId: !Ref ApiGateway
-      RouteKey: "$default"
-      Target: !Sub "integrations/${LambdaIntegration}"
+      Name: !Sub "${FunctionName}-alb"
+      Scheme: internet-facing
+      Subnets:
+        - Fn::ImportValue: !Sub "${FunctionName}-PublicSubnet1Id"
+        - Fn::ImportValue: !Sub "${FunctionName}-PublicSubnet2Id"
+      SecurityGroups:
+        - Fn::ImportValue: !Sub "${FunctionName}-ALBSecurityGroupId"
 
-  ApiStage:
-    Type: AWS::ApiGatewayV2::Stage
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      ApiId: !Ref ApiGateway
-      StageName: "$default"
-      AutoDeploy: true
+      Name: !Sub "${FunctionName}-tg"
+      Port: 8000
+      Protocol: HTTP
+      TargetType: ip
+      VpcId:
+        Fn::ImportValue: !Sub "${FunctionName}-VpcId"
+      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
 
-  LambdaPermission:
-    Type: AWS::Lambda::Permission
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      FunctionName: !Ref LambdaFunction
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/*/*"
+      LoadBalancerArn: !Ref ALB
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+
+  # -------------------------------------------------------
+  # ECS Service
+  # -------------------------------------------------------
+  ECSService:
+    Type: AWS::ECS::Service
+    DependsOn: ALBListener
+    Properties:
+      ServiceName: !Sub "${FunctionName}-service"
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref TaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+            - Fn::ImportValue: !Sub "${FunctionName}-PrivateSubnet1Id"
+            - Fn::ImportValue: !Sub "${FunctionName}-PrivateSubnet2Id"
+          SecurityGroups:
+            - Fn::ImportValue: !Sub "${FunctionName}-ECSSecurityGroupId"
+      LoadBalancers:
+        - ContainerName: !Sub "${FunctionName}-container"
+          ContainerPort: 8000
+          TargetGroupArn: !Ref TargetGroup
 
 Outputs:
   ApiUrl:
-    Description: "FastAPI base URL — append your route paths (e.g. /docs, /health)"
-    Value: !GetAtt ApiGateway.ApiEndpoint
+    Description: "ALB DNS — append your route paths (e.g. /docs, /health)"
+    Value: !Sub "http://${ALB.DNSName}"
 
-  LambdaFunctionArn:
-    Description: Lambda Function ARN
-    Value: !GetAtt LambdaFunction.Arn
+  ECSClusterName:
+    Value: !Ref ECSCluster
 
-  LambdaExecutionRoleArn:
-    Description: IAM Role ARN
-    Value: !GetAtt LambdaExecutionRole.Arn
-
+  ECSServiceName:
+    Value: !GetAtt ECSService.Name

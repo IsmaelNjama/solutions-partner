@@ -1,13 +1,13 @@
 from app.clients.tavily import get_tavily_client
 
 
-def search_web(query: str) -> dict:
+async def search_web(query: str) -> dict:
     """
     Call Tavily search and return raw results.
     """
     client = get_tavily_client()
 
-    return client.invoke({"query": query})
+    return await client.ainvoke({"query": query})
 
 
 def format_search_results(results: dict) -> str:
@@ -21,10 +21,7 @@ def format_search_results(results: dict) -> str:
         url = result.get("url", "")
         content = result.get("content", "").strip()
 
-        output.append(
-            f"[{title}]({url})\n"
-            f"{content}"
-        )
+        output.append(f"[{title}]({url})\n{content}")
 
     if not output:
         return "No search results were found for that query."
@@ -32,10 +29,10 @@ def format_search_results(results: dict) -> str:
     return "\n\n".join(output)
 
 
-def perform_web_search(query: str) -> str:
+async def perform_web_search(query: str) -> str:
     """
     Search the web and return formatted results.
     """
-    raw_results = search_web(query)
+    raw_results = await search_web(query)
 
     return format_search_results(raw_results)

@@ -1,16 +1,14 @@
 # app/api/services.py
 
 import json
-
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 from uuid import uuid4
 
 from langchain_core.messages import HumanMessage
 
+from app.api.schemas import AgentRequest, AgentResponse
 from app.graph.workflow import workflow_app
 from app.utils.context import Context
-
-from app.api.schemas import AgentRequest, AgentResponse
 
 
 def _prepare_agent_inputs(request: AgentRequest):
@@ -26,11 +24,7 @@ def _prepare_agent_inputs(request: AgentRequest):
         user_id=request.user_id,
     )
 
-    inputs = {
-        "messages": [
-            HumanMessage(content=request.query)
-        ]
-    }
+    inputs = {"messages": [HumanMessage(content=request.query)]}
 
     return thread_id, config, context, inputs
 
@@ -79,7 +73,7 @@ async def run_agent_once(request: AgentRequest) -> AgentResponse:
     )
 
 
-async def stream_agent_tokens(request: AgentRequest) -> AsyncGenerator[str, None]:
+async def stream_agent_tokens(request: AgentRequest) -> AsyncGenerator[str]:
     """
     Streaming endpoint.
     Streams tokens back as newline-delimited JSON.
