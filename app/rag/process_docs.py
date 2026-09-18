@@ -54,29 +54,7 @@ client = MilvusClient(
 print("Connected to Instance:")
 
 print(client.list_collections())
-# if we already have a collection, clear it first
-# if client.has_collection(collection_name=COLLECTION_NAME):
-#     stats = client.get_collection_stats(collection_name=COLLECTION_NAME)
-#     row_count = stats.get('row_count', 0)
 
-#     print(
-#         f'⚠️  Collection "{COLLECTION_NAME}" exists with {row_count} entities')
-#     confirm = input('Drop and lose all data? (y/n): ').lower()
-
-#     if confirm == 'yes':
-#         client.drop_collection(collection_name=COLLECTION_NAME)
-#         print('✅ Cleared collection')
-#     elif confirm == "no":
-#         print('❌ Keeping existing collection')
-
-# Create with auto-generated schema
-client.create_collection(
-    collection_name=COLLECTION_NAME,
-    dimension=4096,
-    metric_type="COSINE",
-    auto_id=True
-)
-print('✅ Created collection :', COLLECTION_NAME)
 
 # Chunking
 text_splitter = RecursiveCharacterTextSplitter(
@@ -92,8 +70,8 @@ vectorstore = Milvus.from_documents(
         "token": os.environ.get("TOKEN"),
     },
     collection_name="rag_search",
-    consistency_level="Eventually",
-    # drop_old=True,  # ⚠️ This will drop the existing collection!
+    consistency_level="Strong",
+    drop_old=True,  # ⚠️ This will drop the existing collection!
     index_params={
         "metric_type": "COSINE",
         "index_type": "AUTOINDEX",

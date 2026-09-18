@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 
-from app.tools.tools import tools
+# from app.tools.tools import tools
 
 load_dotenv()
 
@@ -18,4 +18,4 @@ llm = ChatOpenAI(
     streaming=True,  # Explicitly enforce streaming
 )
 
-llm_with_tools = llm.bind_tools(tools)
+# llm_with_tools = llm.bind_tools(tools)
