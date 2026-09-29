@@ -27,6 +27,22 @@
               {
                   "name": "TAVILY_API_KEY",
                   "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs:TAVILY_API_KEY::"
+              },
+              {
+                  "name": "LANGSMITH_TRACING",
+                  "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs:LANGSMITH_TRACING::"
+              },
+              {
+                  "name": "LANGSMITH_ENDPOINT",
+                  "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs:LANGSMITH_ENDPOINT::"
+              },
+              {
+                  "name": "LANGSMITH_API_KEY",
+                  "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs:LANGSMITH_API_KEY::"
+              },
+              {
+                  "name": "LANGSMITH_PROJECT",
+                  "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs:LANGSMITH_PROJECT::"
               }
 
 
