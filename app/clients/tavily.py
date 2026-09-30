@@ -19,9 +19,7 @@ def get_tavily_search_client() -> TavilySearch:
 
     if _tavily_search_client is None:
         if not TAVILY_API_KEY:
-            raise RuntimeError(
-                "TAVILY_API_KEY is not set. "
-            )
+            raise RuntimeError("TAVILY_API_KEY is not set. ")
 
         _tavily_search_client = TavilySearch(
             max_results=5,
