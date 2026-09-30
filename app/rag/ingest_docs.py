@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Ingest PDFs into a Milvus collection for RAG.
 
@@ -100,7 +99,8 @@ def check_embeddings(embeddings):
 
 def check_milvus(uri, token):
     client = MilvusClient(uri=uri, token=token)
-    print(f"Connected to Milvus. Existing collections: {client.list_collections()}")
+    print(
+        f"Connected to Milvus. Existing collections: {client.list_collections()}")
 
 
 def ingest(chunks, embeddings, uri, token, collection, batch_size, drop_old):
@@ -111,11 +111,12 @@ def ingest(chunks, embeddings, uri, token, collection, batch_size, drop_old):
         consistency_level="Strong",
         drop_old=drop_old,
         auto_id=True,
-        index_params={"metric_type": "COSINE", "index_type": "AUTOINDEX", "params": {}},
+        index_params={"metric_type": "COSINE",
+                      "index_type": "AUTOINDEX", "params": {}},
     )
     total = len(chunks)
     for start in range(0, total, batch_size):
-        batch = chunks[start : start + batch_size]
+        batch = chunks[start: start + batch_size]
         store.add_documents(batch)
         print(f"  Uploaded {min(start + batch_size, total)}/{total} chunks")
     return store
