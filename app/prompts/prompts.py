@@ -1,7 +1,6 @@
 import datetime
 
-
-today = datetime.datetime.today().strftime("%A, %B %d, %Y")
+today = datetime.datetime.now(datetime.UTC).strftime("%A, %B %d, %Y")
 
 router_prompt = """
 You are a query router. Given the user's question and the conversation history,

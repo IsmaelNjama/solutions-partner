@@ -22,7 +22,8 @@ from pymilvus import MilvusClient
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DATA_DIR = os.path.normpath(
-    os.path.join(SCRIPT_DIR, "..", "..", "data", "docs"))
+    os.path.join(SCRIPT_DIR, "..", "..", "data", "docs")
+)
 
 EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-8B"
 NEBIUS_BASE_URL = "https://api.tokenfactory.nebius.com/v1/"
@@ -31,18 +32,27 @@ DEFAULT_COLLECTION = "rag_search"
 
 def parse_args():
     p = argparse.ArgumentParser(description="Ingest PDFs into Milvus.")
-    p.add_argument("--data-dir", default=DEFAULT_DATA_DIR,
-                   help="Folder containing PDFs")
-    p.add_argument("--collection", default=DEFAULT_COLLECTION,
-                   help="Milvus collection name")
+    p.add_argument(
+        "--data-dir", default=DEFAULT_DATA_DIR, help="Folder containing PDFs"
+    )
+    p.add_argument(
+        "--collection", default=DEFAULT_COLLECTION, help="Milvus collection name"
+    )
     p.add_argument("--chunk-size", type=int, default=512)
     p.add_argument("--chunk-overlap", type=int, default=51)
-    p.add_argument("--batch-size", type=int, default=64,
-                   help="Chunks embedded/uploaded per batch")
-    p.add_argument("--drop-old", action="store_true",
-                   help="Drop the existing collection before ingesting (destructive)")
-    p.add_argument("--dry-run", action="store_true",
-                   help="Load and chunk documents only; skip embedding and upload")
+    p.add_argument(
+        "--batch-size", type=int, default=64, help="Chunks embedded/uploaded per batch"
+    )
+    p.add_argument(
+        "--drop-old",
+        action="store_true",
+        help="Drop the existing collection before ingesting (destructive)",
+    )
+    p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Load and chunk documents only; skip embedding and upload",
+    )
     return p.parse_args()
 
 
@@ -50,7 +60,8 @@ def require_env(*names):
     missing = [n for n in names if not os.environ.get(n)]
     if missing:
         sys.exit(
-            f"Missing environment variables: {', '.join(missing)} (check your .env file)")
+            f"Missing environment variables: {', '.join(missing)} (check your .env file)"
+        )
 
 
 def load_documents(data_dir):
@@ -67,7 +78,8 @@ def load_documents(data_dir):
 
 def chunk_documents(documents, chunk_size, chunk_overlap):
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+        chunk_size=chunk_size, chunk_overlap=chunk_overlap
+    )
     chunks = splitter.split_documents(documents)
     print(f"Split into {len(chunks)} chunks")
     return chunks
@@ -88,8 +100,7 @@ def check_embeddings(embeddings):
 
 def check_milvus(uri, token):
     client = MilvusClient(uri=uri, token=token)
-    print(
-        f"Connected to Milvus. Existing collections: {client.list_collections()}")
+    print(f"Connected to Milvus. Existing collections: {client.list_collections()}")
 
 
 def ingest(chunks, embeddings, uri, token, collection, batch_size, drop_old):
@@ -100,12 +111,11 @@ def ingest(chunks, embeddings, uri, token, collection, batch_size, drop_old):
         consistency_level="Strong",
         drop_old=drop_old,
         auto_id=True,
-        index_params={"metric_type": "COSINE",
-                      "index_type": "AUTOINDEX", "params": {}},
+        index_params={"metric_type": "COSINE", "index_type": "AUTOINDEX", "params": {}},
     )
     total = len(chunks)
     for start in range(0, total, batch_size):
-        batch = chunks[start:start + batch_size]
+        batch = chunks[start : start + batch_size]
         store.add_documents(batch)
         print(f"  Uploaded {min(start + batch_size, total)}/{total} chunks")
     return store
@@ -133,10 +143,12 @@ def main():
     if args.drop_old:
         print(f"WARNING: dropping existing collection '{args.collection}'")
 
-    ingest(chunks, embeddings, uri, token,
-           args.collection, args.batch_size, args.drop_old)
+    ingest(
+        chunks, embeddings, uri, token, args.collection, args.batch_size, args.drop_old
+    )
     print(
-        f"Done. Collection '{args.collection}' now has content from {len(chunks)} chunks.")
+        f"Done. Collection '{args.collection}' now has content from {len(chunks)} chunks."
+    )
 
 
 if __name__ == "__main__":

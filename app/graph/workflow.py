@@ -22,15 +22,14 @@ class State(TypedDict):
 
 # Router node
 
+
 def make_router_node(chain):
     """Return a LangGraph node that classifies the user query."""
 
     def router_node(state: State) -> dict:
         messages = state.get("messages", [])
 
-        user_input = state.get("input") or (
-            messages[-1].content if messages else ""
-        )
+        user_input = state.get("input") or (messages[-1].content if messages else "")
 
         # History = all messages except the current one
         history = "\n".join(msg.content for msg in messages[:-1])
@@ -67,35 +66,25 @@ def route_after_router(state: State) -> str:
 async def retrieve_node(state: State) -> dict:
     """Query the Milvus knowledge base and add the result to messages."""
     messages = state.get("messages", [])
-    user_input = state.get("input") or (
-        messages[-1].content if messages else ""
-    )
+    user_input = state.get("input") or (messages[-1].content if messages else "")
 
     print(f"[retrieve_node] querying docs for: {user_input!r}")
     result = await retrieve_tech_info(user_input)
 
     return {
-        "messages": [
-            ToolMessage(content=result, tool_call_id="retrieve_tech_info")
-        ]
+        "messages": [ToolMessage(content=result, tool_call_id="retrieve_tech_info")]
     }
 
 
 async def web_search_node(state: State) -> dict:
     """Run a Tavily web search and add the result to messages."""
     messages = state.get("messages", [])
-    user_input = state.get("input") or (
-        messages[-1].content if messages else ""
-    )
+    user_input = state.get("input") or (messages[-1].content if messages else "")
 
     print(f"[web_search_node] searching web for: {user_input!r}")
     result = await perform_web_search(user_input)
 
-    return {
-        "messages": [
-            ToolMessage(content=result, tool_call_id="web_search")
-        ]
-    }
+    return {"messages": [ToolMessage(content=result, tool_call_id="web_search")]}
 
 
 # Build the graph
