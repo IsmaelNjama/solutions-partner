@@ -43,7 +43,15 @@
               {
                   "name": "LANGSMITH_PROJECT",
                   "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs:LANGSMITH_PROJECT::"
-              }
+              },
+                {
+                    "name": "SERVING_CLUSTER_ENDPOINT",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs:SERVING_CLUSTER_ENDPOINT::"
+                },
+                {
+                    "name": "TOKEN",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-1:654081961741:secret:dev/solutions-partner-ai/secrets-LnT0hs:TOKEN::"
+                }
 
 
           ],
