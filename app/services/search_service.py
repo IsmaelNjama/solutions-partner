@@ -1,11 +1,11 @@
-from app.clients.tavily import get_tavily_client
+from app.clients.tavily import get_tavily_search_client
 
 
 async def search_web(query: str) -> dict:
     """
     Call Tavily search and return raw results.
     """
-    client = get_tavily_client()
+    client = get_tavily_search_client()
 
     return await client.ainvoke({"query": query})
 
