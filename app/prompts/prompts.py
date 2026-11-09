@@ -23,7 +23,7 @@ Rules:
    arming/disarming, or similar hardware/software topics → query_docs.
 2. If the question requires facts that change over time or live data → web_search.
 3. Everything else (greetings, opinions, math, general coding, etc.) → out_of_scope.
-4. When in doubt between query_docs and web_search, prefer query_docs.
+4. When in doubt between query_docs and web_search, prefer web_search.
 5. Respond with ONLY the Route schema — do not add explanations.
 
 Conversation history:
