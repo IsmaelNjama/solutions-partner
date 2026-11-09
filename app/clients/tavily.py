@@ -8,24 +8,22 @@ load_dotenv()
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 
-_tavily_client = None
+_tavily_search_client = None
 
 
-def get_tavily_client() -> TavilySearch:
+def get_tavily_search_client() -> TavilySearch:
     """
     Lazily initialize the Tavily client.
     """
-    global _tavily_client
+    global _tavily_search_client
 
-    if _tavily_client is None:
+    if _tavily_search_client is None:
         if not TAVILY_API_KEY:
-            raise RuntimeError(
-                "TAVILY_API_KEY is not set. "
-            )
+            raise RuntimeError("TAVILY_API_KEY is not set. ")
 
-        _tavily_client = TavilySearch(
+        _tavily_search_client = TavilySearch(
             max_results=5,
             search_depth="basic",
         )
 
-    return _tavily_client
+    return _tavily_search_client

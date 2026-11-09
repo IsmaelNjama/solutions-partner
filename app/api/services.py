@@ -24,7 +24,10 @@ def _prepare_agent_inputs(request: AgentRequest):
         user_id=request.user_id,
     )
 
-    inputs = {"messages": [HumanMessage(content=request.query)]}
+    inputs = {
+        "input": request.query,
+        "messages": [HumanMessage(content=request.query)],
+    }
 
     return thread_id, config, context, inputs
 
@@ -89,6 +92,15 @@ async def stream_agent_tokens(request: AgentRequest) -> AsyncGenerator[str]:
         kind = event["event"]
 
         if kind == "on_chat_model_stream":
+            node_name = event.get("metadata", {}).get("langgraph_node", "")
+            # DEBUG — log node names so we can confirm the filter is correct
+            # print(f"[stream] on_chat_model_stream node={node_name!r} name={event.get('name')!r}")
+
+            # Skip tokens from the router — those are structured JSON,
+            # not user-facing text.
+            if node_name == "router":
+                continue
+
             content = event["data"]["chunk"].content
 
             if content:
