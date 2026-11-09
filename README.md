@@ -2,7 +2,7 @@
 
 ## 1. Search Companion
 
-Solutions Partner is an AI-powered research companion built on LangGraph that intelligently routes user queries to the right information source. When a user asks a question, a lightweight router model classifies it into one of three categories:
+Search Companion is an AI-powered research tool built on LangGraph that intelligently routes user queries to the right information source. When a user asks a question, a lightweight router model classifies it into one of three categories:
 
 - **query_docs** — retrieves relevant information from a Milvus vector database containing Risco alarm panel documentation
 - **web_search** — performs a real-time web search via Tavily for current or external information
